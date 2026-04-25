@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reunion Member Acquisition — Structure Working Document</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --ink: #0f2a1d;
+    --ink-soft: #1e3a2a;
+    --gold: #b38e3f;
+    --gold-soft: #d4b676;
+    --cream: #faf7f0;
+    --sand: #f1ead7;
+    --rust: #9c4b2a;
+    --slate: #334155;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--cream);
+    color: var(--ink);
+  }
+  .sans { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  .serif { font-family: 'Georgia', 'Times New Roman', serif; }
+  .accent { color: var(--gold); }
+  .bg-ink { background: var(--ink); }
+  .bg-ink-soft { background: var(--ink-soft); }
+  .bg-cream { background: var(--cream); }
+  .bg-sand { background: var(--sand); }
+  .text-ink { color: var(--ink); }
+  .text-gold { color: var(--gold); }
+  .text-slate { color: var(--slate); }
+  .border-gold { border-color: var(--gold); }
+  .border-ink { border-color: var(--ink); }
+
+  .chip {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .chip-green { background: #dcfce7; color: #14532d; }
+  .chip-yellow { background: #fef3c7; color: #78350f; }
+  .chip-red { background: #fee2e2; color: #7f1d1d; }
+  .chip-ink { background: var(--ink); color: var(--gold-soft); }
+  .chip-gold { background: var(--gold); color: white; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #e7decf;
+    border-radius: 4px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  .card {
+    background: white;
+    border: 1px solid #e7decf;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(15, 42, 29, 0.06);
+  }
+  .section-divider {
+    border-top: 2px solid var(--gold);
+    width: 60px;
+  }
+  .num-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--gold-soft);
+    font-weight: 700;
+    font-family: 'Georgia', serif;
+  }
+  .nav-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(10px);
+    background: rgba(250, 247, 240, 0.92);
+    border-bottom: 1px solid #e7decf;
+  }
+  .tab-btn {
+    padding: 10px 16px;
+    border-radius: 6px 6px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: transparent;
+    color: var(--slate);
+  }
+  .tab-btn.active {
+    background: white;
+    color: var(--ink);
+    border-color: #e7decf;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .toggle-btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #e7decf;
+    background: white;
+    color: var(--slate);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toggle-btn.active {
+    background: var(--ink);
+    color: var(--gold-soft);
+    border-color: var(--ink);
+  }
+  .pro-item::before { content: "✓"; color: #166534; font-weight: bold; margin-right: 8px; }
+  .con-item::before { content: "✕"; color: #991b1b; font-weight: bold; margin-right: 8px; }
+
+  .print-only { display: none; }
+  @media print {
+    .no-print { display: none !important; }
+    .print-only { display: block; }
+    body { background: white; }
+    .card { box-shadow: none; border: 1px solid #ccc; }
+  }
+
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(179, 142, 63, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(179, 142, 63, 0); }
+  }
+  .pulse-gold { animation: pulse-gold 2.5s infinite; }
+
+  details > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::after {
+    content: "+";
+    float: right;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  details[open] > summary::after { content: "−"; }
+
+  .draft-watermark {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 4px 12px;
+    background: var(--rust);
+    color: white;
+    font-family: sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    border-radius: 3px;
+    z-index: 100;
+    opacity: 0.85;
+  }
+</style>
+</head>
+<body class="antialiased">
+
+<div class="draft-watermark no-print">WORKING DRAFT · NOT FOR DISTRIBUTION</div>
+
+<!-- ====================================================== HERO ====================================================== -->
+<header class="bg-ink text-white">
+  <div class="max-w-6xl mx-auto px-6 py-14">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="chip chip-gold">Confidential · Working Draft</span>
+      <span class="chip chip-ink border border-yellow-700">v0.3 · $10M–$25M Range · $20M Default · 45-Day Window</span>
+    </div>
+    <h1 class="text-5xl md:text-6xl font-bold tracking-tight mb-4 serif">
+      A Member-Owned <span class="accent">Reunion</span>
+    </h1>
+    <p class="text-xl text-gray-300 max-w-3xl leading-relaxed">
+      An equity-and-non-equity membership structure designed to acquire
+      Reunion Country Club for the members, by the members — under the
+      45-day window opened by the April 15 Important Notice to Members,
+      with 60% dues-paying member approval required.
+    </p>
+    <div class="mt-10 grid grid-cols-2 md:grid-cols-5 gap-6 text-sm">
+      <div>
+        <div class="text-gold-soft text-xs uppercase tracking-wider mb-1">Purchase Assumption</div>
+        <div class="text-3xl font-bold">$20.0M</div>
+        <div class="text-gray-400 text-xs">range $10M–$25M · $20M default</div>
+      </div>
+      <div>
+        <div class="text-gold-soft text-xs uppercase tracking-wider mb-1">PA Deadline</div>
+        <div class="text-3xl font-bold">May 30</div>
+        <div class="text-gray-400 text-xs">45 days from Apr 15 notice</div>
+      </div>
+      <div>
+        <div class="text-gold-soft text-xs uppercase tracking-wider mb-1">Voting Members</div>
+        <div class="text-3xl font-bold">587</div>
+        <div class="text-gray-400 text-xs">primary, per 4.24.26 directory scrape</div>
+      </div>
+      <div>
+        <div class="text-gold-soft text-xs uppercase tracking-wider mb-1">Approval Threshold</div>
+        <div class="text-3xl font-bold">60%</div>
+        <div class="text-gray-400 text-xs">~353 YES votes required</div>
+      </div>
+      <div>
+        <div class="text-gold-soft text-xs uppercase tracking-wider mb-1">Close Deadline</div>
+        <div class="text-3xl font-bold">Jul 14</div>
+        <div class="text-gray-400 text-xs">90 days from notice</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ====================================================== NAV ====================================================== -->
+<nav class="nav-sticky no-print">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex flex-wrap gap-4 text-xs sans font-semibold uppercase tracking-wider">
+    <a href="#context" class="hover:text-gold">1. Context</a>
+    <a href="#thesis" class="hover:text-gold">2. Thesis</a>
+    <a href="#capital" class="hover:text-gold">3. Capital Stack</a>
+    <a href="#tiers" class="hover:text-gold">4. Tier Builder</a>
+    <a href="#members" class="hover:text-gold">5. Member Base</a>
+    <a href="#governance" class="hover:text-gold">6. Governance</a>
+    <a href="#refund" class="hover:text-gold">7. Refund Mechanics</a>
+    <a href="#vote" class="hover:text-gold">8. 60% Vote Strategy</a>
+    <a href="#risks" class="hover:text-gold">9. Risks</a>
+    <a href="#nextsteps" class="hover:text-gold">10. Next Steps</a>
+  </div>
+</nav>
+
+<!-- ====================================================== 1. CONTEXT ====================================================== -->
+<section id="context" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">1</span>
+    <h2 class="text-4xl font-bold serif">Why we are having this conversation</h2>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <div class="card p-6">
+      <h3 class="text-xl font-bold mb-3 serif">The situation</h3>
+      <p class="leading-relaxed mb-3">
+        On <strong>April 15, 2026</strong>, RG&amp;CC ownership announced Evergreen Partners
+        as the chosen new owner and — as required by the Membership Plan —
+        triggered the members' one-time opportunity to organize and negotiate
+        a purchase. We have <strong>45 days from notice (deadline May 30)</strong> to
+        execute a purchase agreement, and <strong>90 days total (July 14)</strong> to close.
+      </p>
+      <p class="leading-relaxed mb-3">
+        Planning range: <strong>$10M – $25M</strong>, with <strong>$20 million as the default
+        expectation</strong>. The lower end reflects pure money-losing-club valuation
+        on hard-asset and turnaround value. The $20M+ end reflects the trophy
+        quality of the clubhouse, the strategic value of the club to the surrounding
+        community, the extra land in the deal, and a competitive bid against Evergreen.
+      </p>
+      <p class="leading-relaxed text-sm text-slate italic">
+        Working assumption for v0.2: senior debt and seller paper are tentatively
+        secured pending PA. The equity raise from members and the precise purchase
+        price are the two gating variables — the calculator below shows how they trade off.
+      </p>
+    </div>
+
+    <div class="card p-6">
+      <h3 class="text-xl font-bold mb-3 serif">What Evergreen is likely to do</h3>
+      <p class="leading-relaxed mb-3">
+        Their public playbook is consistent: professionalize service and systems, standardize the back office (Clubspot, centralized reporting), activate non-golf amenities, push membership growth and event revenue, and — while they don't say it out loud — methodical dues and assessment increases over 3–5 years to support capex.
+      </p>
+      <p class="leading-relaxed mb-3">
+        None of that is inherently bad. The question is whether members want those decisions made <em>for them</em> by an out-of-state operator optimizing a portfolio, or <em>by them</em> through a local ownership vehicle.
+      </p>
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <span class="chip chip-yellow">Somerby members ratified at 96%</span>
+        <span class="chip chip-green">Pro: capital &amp; expertise</span>
+        <span class="chip chip-red">Con: loss of local control</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-6 mt-6 bg-sand">
+    <h3 class="text-xl font-bold mb-2 serif">Our alternative, in one sentence</h3>
+    <p class="text-lg leading-relaxed">
+      Recapitalize Reunion as a <strong>member-owned club</strong> using a tiered
+      equity-and-non-equity membership structure that raises the bulk of the
+      purchase price from members who want ownership, fills the gap with
+      conservative debt, and leaves day-to-day use rights for current and
+      future members largely unchanged.
+    </p>
+  </div>
+</section>
+
+<!-- ====================================================== 2. THESIS ====================================================== -->
+<section id="thesis" class="bg-sand">
+<div class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">2</span>
+    <h2 class="text-4xl font-bold serif">Design principles</h2>
+  </div>
+  <p class="mb-8 text-lg max-w-3xl">
+    Everything in this document flows from six principles. They exist to get us through a 60% member vote <em>and</em> survive the first three years.
+  </p>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="card p-5">
+      <div class="text-gold font-bold mb-2 sans text-xs uppercase tracking-wider">Principle 1</div>
+      <h4 class="font-bold serif text-lg mb-2">Attractive to whales without being oligarchic</h4>
+      <p class="text-sm leading-relaxed">Patron-tier backers get prestige, amenities, and refund priority — <strong>not</strong> weighted votes. One equity membership, one vote. Prevents a political backlash that kills the deal.</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-gold font-bold mb-2 sans text-xs uppercase tracking-wider">Principle 2</div>
+      <h4 class="font-bold serif text-lg mb-2">No forced check from current members</h4>
+      <p class="text-sm leading-relaxed">Existing members are automatically grandfathered into a non-equity class at no additional cost. Existing members can ALSO buy in to equity at the entry-level <strong>$10k tier any time over the next 10 years</strong> (financing available). New members joining the club after close MUST buy equity. This is the single most important design choice for the vote.</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-gold font-bold mb-2 sans text-xs uppercase tracking-wider">Principle 3</div>
+      <h4 class="font-bold serif text-lg mb-2">Dues discipline</h4>
+      <p class="text-sm leading-relaxed">Dues schedule for non-equity members is capped for 24–36 months post-close. Equity holders absorb the turnaround risk — that's what equity <em>is</em>.</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-gold font-bold mb-2 sans text-xs uppercase tracking-wider">Principle 4</div>
+      <h4 class="font-bold serif text-lg mb-2">Scarcity-backed equity value</h4>
+      <p class="text-sm leading-relaxed">Hard caps on total equity memberships. Once sold out, new members enter as non-equity until an equity seat is reissued. Protects the long-term value of what founders are buying.</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-gold font-bold mb-2 sans text-xs uppercase tracking-wider">Principle 5</div>
+      <h4 class="font-bold serif text-lg mb-2">Club reissuance, not open-market resale</h4>
+      <p class="text-sm leading-relaxed">Departing equity members return their membership to the club, which resells it and pays out under a defined formula. Avoids a gray market and keeps admissions under member control.</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-gold font-bold mb-2 sans text-xs uppercase tracking-wider">Principle 6</div>
+      <h4 class="font-bold serif text-lg mb-2">Transparent economics</h4>
+      <p class="text-sm leading-relaxed">Every member gets the same pro forma, same cap table, same debt stack, same turnaround plan. If we can't explain it cleanly on a single page, it won't pass.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ====================================================== 3. CAPITAL STACK ====================================================== -->
+<section id="capital" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">3</span>
+    <h2 class="text-4xl font-bold serif">Capital stack — interactive</h2>
+  </div>
+  <p class="mb-8 text-lg max-w-3xl">
+    The purchase price is only the headline. We also need working capital to fund losses during turnaround, and a reserve for deferred maintenance. Tune the sliders — the stack updates live.
+  </p>
+
+  <div class="grid md:grid-cols-3 gap-8">
+    <!-- Controls -->
+    <div class="md:col-span-1 card p-6 sans">
+      <h3 class="font-bold mb-4 text-sm uppercase tracking-wider text-slate">Total Capital Need</h3>
+
+      <label class="block text-xs font-semibold mb-1 text-slate">Purchase price</label>
+      <input id="cap-purchase" type="range" min="10" max="25" step="0.5" value="20" class="mb-1" />
+      <div class="flex justify-between text-xs text-slate mb-4"><span>$10M</span><span class="font-bold text-ink" id="cap-purchase-val">$20.0M</span><span>$25M</span></div>
+
+      <label class="block text-xs font-semibold mb-1 text-slate">Working capital (fund losses)</label>
+      <input id="cap-wc" type="range" min="0" max="6" step="0.25" value="2" class="mb-1" />
+      <div class="flex justify-between text-xs text-slate mb-4"><span>$0M</span><span class="font-bold text-ink" id="cap-wc-val">$2.0M</span><span>$6M</span></div>
+
+      <label class="block text-xs font-semibold mb-1 text-slate">Deferred capex / reserve</label>
+      <input id="cap-capex" type="range" min="0" max="6" step="0.25" value="1.5" class="mb-1" />
+      <div class="flex justify-between text-xs text-slate mb-4"><span>$0M</span><span class="font-bold text-ink" id="cap-capex-val">$1.5M</span><span>$6M</span></div>
+
+      <hr class="my-4" />
+      <h3 class="font-bold mb-4 text-sm uppercase tracking-wider text-slate">Non-Equity Sources</h3>
+
+      <label class="block text-xs font-semibold mb-1 text-slate">Bank debt</label>
+      <input id="cap-debt" type="range" min="0" max="15" step="0.5" value="8" class="mb-1" />
+      <div class="flex justify-between text-xs text-slate mb-4"><span>$0M</span><span class="font-bold text-ink" id="cap-debt-val">$8.0M</span><span>$15M</span></div>
+
+      <label class="block text-xs font-semibold mb-1 text-slate">Seller note</label>
+      <input id="cap-sellernote" type="range" min="0" max="8" step="0.25" value="3" class="mb-1" />
+      <div class="flex justify-between text-xs text-slate mb-4"><span>$0M</span><span class="font-bold text-ink" id="cap-sellernote-val">$3.0M</span><span>$8M</span></div>
+
+      <label class="block text-xs font-semibold mb-1 text-slate">Benefactor/sponsor note</label>
+      <input id="cap-benefactor" type="range" min="0" max="6" step="0.25" value="0" class="mb-1" />
+      <div class="flex justify-between text-xs text-slate mb-4"><span>$0M</span><span class="font-bold text-ink" id="cap-benefactor-val">$0.0M</span><span>$6M</span></div>
+    </div>
+
+    <!-- Visualization -->
+    <div class="md:col-span-2">
+      <div class="card p-6 mb-4">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate mb-1 sans">Total Need</div>
+            <div class="text-3xl font-bold" id="cap-total-need">$23.5M</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate mb-1 sans text-right">Equity Gap</div>
+            <div class="text-3xl font-bold text-right" id="cap-equity-needed">$12.5M</div>
+          </div>
+        </div>
+        <div class="h-10 flex rounded overflow-hidden shadow-inner border border-gray-300">
+          <div id="cap-bar-equity" class="bg-gradient-to-r from-yellow-600 to-yellow-500 flex items-center justify-center text-white text-xs font-bold" style="width:70%"></div>
+          <div id="cap-bar-debt" class="bg-gradient-to-r from-slate-600 to-slate-500 flex items-center justify-center text-white text-xs font-bold" style="width:22%"></div>
+          <div id="cap-bar-sellernote" class="bg-gradient-to-r from-slate-400 to-slate-300 flex items-center justify-center text-white text-xs font-bold" style="width:7%"></div>
+          <div id="cap-bar-benefactor" class="bg-gradient-to-r from-amber-300 to-amber-200 flex items-center justify-center text-white text-xs font-bold" style="width:0%"></div>
+        </div>
+        <div class="flex gap-4 mt-3 text-xs sans">
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-yellow-600"></span> Member equity</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-slate-600"></span> Bank debt</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-slate-400"></span> Seller note</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-amber-300"></span> Benefactor</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="card p-4 text-center">
+          <div class="text-xs text-slate uppercase sans mb-1">Annual debt service</div>
+          <div class="text-2xl font-bold" id="cap-debt-service">$300k</div>
+          <div class="text-xs text-slate" id="cap-debt-service-note">@ 7.5% · 20y amort</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-xs text-slate uppercase sans mb-1">Yrs WC covers $1M burn</div>
+          <div class="text-2xl font-bold" id="cap-wc-runway">2.0</div>
+          <div class="text-xs text-slate">runway to turn the club</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-xs text-slate uppercase sans mb-1">Avg equity per slot <sup>*</sup></div>
+          <div class="text-2xl font-bold" id="cap-per-voter">$31k</div>
+          <div class="text-xs text-slate">if ~400 equity slots filled</div>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate mt-3 italic">
+        * Rough check. Actual average depends on mix of tiers — see Section 4.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 4. TIER BUILDER ====================================================== -->
+<section id="tiers" class="bg-ink text-white">
+<div class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">4</span>
+    <h2 class="text-4xl font-bold serif">Equity tier builder — interactive</h2>
+  </div>
+  <p class="mb-8 text-lg max-w-3xl text-gray-300">
+    Five equity tiers. Adjust prices and caps; the calculator shows how much you raise, what percentage of the 587 primary voting members would need to participate to clear each tier, and what the all-in equity total is. <strong>Only $50k+ tiers carry board eligibility.</strong> $12k is voting equity but no board seat and no refund. $25k is the lowest refund tier.
+  </p>
+
+  <div class="card p-6 text-ink mb-6">
+    <table class="w-full text-sm">
+      <thead class="sans">
+        <tr class="border-b-2 border-ink">
+          <th class="text-left py-2">Tier</th>
+          <th class="text-left py-2">Price</th>
+          <th class="text-left py-2">Cap</th>
+          <th class="text-left py-2">% of 587 voting members</th>
+          <th class="text-right py-2">Total raised</th>
+        </tr>
+      </thead>
+      <tbody id="tier-table">
+        <!-- Rows rendered by JS -->
+      </tbody>
+      <tfoot>
+        <tr class="border-t-2 border-ink font-bold">
+          <td class="py-3 serif">Total Equity Raised</td>
+          <td colspan="3"></td>
+          <td class="text-right py-3 serif text-xl" id="tier-grand-total">$0</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="card p-5 text-ink">
+      <div class="flex items-start justify-between mb-2">
+        <div class="text-xs uppercase tracking-wider text-slate sans">Equity vs. goal</div>
+        <div id="tier-vs-goal-chip" class="chip chip-yellow">Coverage</div>
+      </div>
+      <div class="text-2xl font-bold" id="tier-vs-goal">$0 raised / $12.5M needed</div>
+      <div class="h-4 bg-gray-200 rounded-full overflow-hidden mt-3">
+        <div id="tier-progress" class="h-full bg-gradient-to-r from-yellow-600 to-yellow-500 transition-all" style="width: 0%"></div>
+      </div>
+      <div class="text-xs text-slate sans mt-2" id="tier-progress-label">0% of equity goal covered</div>
+    </div>
+    <div class="card p-5 text-ink">
+      <div class="text-xs uppercase tracking-wider text-slate sans mb-2">Implied participation</div>
+      <div class="text-2xl font-bold" id="tier-participation">0 equity slots</div>
+      <div class="text-sm text-slate mt-2" id="tier-participation-note">— of 587 primary voting members</div>
+      <div class="text-xs text-slate italic mt-2">Existing members can stay non-equity at no cost OR buy in at the $10k entry tier any time within 10 years (financing available). New members joining post-close must buy equity.</div>
+    </div>
+  </div>
+
+  <div class="mt-6 grid md:grid-cols-2 gap-4 text-sm">
+    <div class="card p-5 text-ink">
+      <h4 class="font-bold mb-3 serif">Preset scenarios</h4>
+      <div class="flex flex-wrap gap-2">
+        <button class="toggle-btn" onclick="applyPreset('conservative')">Conservative</button>
+        <button class="toggle-btn" onclick="applyPreset('balanced')">Balanced (recommended)</button>
+        <button class="toggle-btn" onclick="applyPreset('aggressive')">Aggressive</button>
+        <button class="toggle-btn" onclick="applyPreset('no-patron')">No $250k tier</button>
+        <button class="toggle-btn" onclick="applyPreset('reset')">Reset</button>
+      </div>
+      <p class="text-xs text-slate mt-4 italic">
+        Conservative = fewer, cheaper tiers (easier to sell, less raised). Aggressive = more whales, more total raised, politically harder.
+      </p>
+    </div>
+    <div class="card p-5 text-ink">
+      <h4 class="font-bold mb-3 serif">Buy-in rules — current vs. new members</h4>
+      <ul class="space-y-2 text-sm">
+        <li class="flex justify-between border-b border-dashed pb-1"><span><strong>Current members</strong> — stay non-equity</span><span class="font-bold text-green-700">$0</span></li>
+        <li class="flex justify-between border-b border-dashed pb-1"><span><strong>Current members</strong> — entry-tier buy-in (any time, 10-yr window)</span><span class="font-bold">$10k · financing OK</span></li>
+        <li class="flex justify-between border-b border-dashed pb-1"><span><strong>New member</strong> — Junior Equity required</span><span class="font-bold">$12k · non-refundable</span></li>
+        <li class="flex justify-between"><span><strong>New member</strong> — Legacy Equity required</span><span class="font-bold">$25k · standard refund/reissue</span></li>
+      </ul>
+      <p class="text-xs text-slate mt-3 italic">All members can move up tiers if higher-tier slots are available. Path upward is always open. Existing members never face a forced check.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ====================================================== 5. MEMBER BASE ====================================================== -->
+<section id="members" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">5</span>
+    <h2 class="text-4xl font-bold serif">Who are we actually talking to?</h2>
+  </div>
+  <p class="mb-8 text-lg max-w-3xl">
+    Based on the 4.24.26 reunionms.com directory scrape (1,810 records total): <strong>587 primary voting members</strong>, ~424 spouses, ~797 dependents. The 587 figure includes 544 golf primary members from the 3.1.26 golf roster plus ~43 sports-only members captured by the broader scrape. Each segment behaves differently at a vote.
+  </p>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <div class="card p-5">
+      <h4 class="font-bold mb-4 serif text-lg">Primary member breakdown by category</h4>
+      <canvas id="memberDonut" height="280"></canvas>
+      <p class="text-xs text-slate italic mt-4">Golf categories from 3.1.26 roster (544). Sports/Other is the residual ~43 primary members in the directory not in the golf roster — likely sports-only or recent joins.</p>
+    </div>
+
+    <div class="space-y-3">
+      <div class="card p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="chip chip-green">Likely YES</span>
+            <h5 class="font-bold mt-1 serif">Full Golf · 200 (36.8%)</h5>
+          </div>
+          <div class="text-right text-xs text-slate sans">200 votes</div>
+        </div>
+        <p class="text-sm mt-2">The base of the club. Mixed income levels but strong emotional ownership. Most likely equity buyers at $25k–$100k. <strong>If we lose this segment, the deal dies.</strong></p>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="chip chip-green">Likely YES</span>
+            <h5 class="font-bold mt-1 serif">Junior Exec · 124 (22.8%)</h5>
+          </div>
+          <div class="text-right text-xs text-slate sans">124 votes</div>
+        </div>
+        <p class="text-sm mt-2">Ages ~35–45, career-building professionals. Mostly <strong>cannot write $100k today</strong> but are the future of the club. The $25k Legacy/Junior Equity tier is built for them. They vote YES if non-equity option is real.</p>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="chip chip-yellow">Swing vote</span>
+            <h5 class="font-bold mt-1 serif">Corporate · 101 (18.6%)</h5>
+          </div>
+          <div class="text-right text-xs text-slate sans">~101 votes (governance q)</div>
+        </div>
+        <p class="text-sm mt-2">Company-paid memberships. Individual users generally don't have a vote — the <em>company</em> (via the designated representative) does. Need to check bylaws on this. Some will pay their own equity personally; most won't. Tends to follow the designated user's opinion.</p>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="chip chip-yellow">Swing vote</span>
+            <h5 class="font-bold mt-1 serif">Senior (55–64) · 74 (13.6%)</h5>
+          </div>
+          <div class="text-right text-xs text-slate sans">74 votes</div>
+        </div>
+        <p class="text-sm mt-2">Transitioning to retirement income. Some cash-rich, some not. They ask hard questions about <strong>dues caps, refundability, and what happens at 65</strong>. Winnable with clear guarantees, but will vote NO if they feel squeezed.</p>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="chip chip-red">Loss aversion</span>
+            <h5 class="font-bold mt-1 serif">Super Senior (65+) · 14 (2.6%)</h5>
+          </div>
+          <div class="text-right text-xs text-slate sans">14 votes</div>
+        </div>
+        <p class="text-sm mt-2">Fixed income. Small group but vocal. Need <strong>explicit "no new assessments on existing members" language</strong> to neutralize them. Will oppose anything that feels like a forced check.</p>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="chip chip-green">Likely YES</span>
+            <h5 class="font-bold mt-1 serif">Junior (&lt;35) · 27 (4.6%)</h5>
+          </div>
+          <div class="text-right text-xs text-slate sans">27 votes</div>
+        </div>
+        <p class="text-sm mt-2">Under-35 bracket. Few with ready capital, but emotionally aligned with local-ownership narrative. They vote YES if the <strong>$12k Junior Equity tier</strong> is the entry point — that price is workable for this segment.</p>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="chip chip-yellow">Unknown</span>
+            <h5 class="font-bold mt-1 serif">Sports / Other · ~43 (7.3%)</h5>
+          </div>
+          <div class="text-right text-xs text-slate sans">~43 votes</div>
+        </div>
+        <p class="text-sm mt-2">Primary members in the directory not in the 3.1.26 golf roster — likely sports-only, social, or recent joins. Less data on this group; outreach should be intentional and direct. <strong>If they feel like an afterthought, they vote NO.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 60% math -->
+  <div class="card p-6 mt-8 bg-sand">
+    <h3 class="text-xl font-bold serif mb-3">The math on 60%</h3>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div>
+        <div class="text-xs uppercase tracking-wider text-slate sans mb-1">Voting base (dues-paying)</div>
+        <div class="text-3xl font-bold">587</div>
+        <div class="text-xs text-slate">primary members from 4.24.26 directory</div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-wider text-slate sans mb-1">YES votes required</div>
+        <div class="text-3xl font-bold">353</div>
+        <div class="text-xs text-slate">60% supermajority per Apr 15 notice</div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-wider text-slate sans mb-1">Opposition ceiling</div>
+        <div class="text-3xl font-bold">234</div>
+        <div class="text-xs text-slate">at 235 NO votes the deal dies</div>
+      </div>
+    </div>
+    <p class="text-sm mt-4 italic text-slate">
+      The April 15 Important Notice explicitly states: <em>"at least 60% of all current dues-paying Club Members are in favor of and agree to participate in the purchase."</em> Counsel should verify the precise definition of "dues-paying Club Members" against the Membership Plan before the vote.
+    </p>
+  </div>
+</section>
+
+<!-- ====================================================== 6. GOVERNANCE ====================================================== -->
+<section id="governance" class="bg-sand">
+<div class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">6</span>
+    <h2 class="text-4xl font-bold serif">Governance &amp; voting</h2>
+  </div>
+  <p class="mb-8 text-lg max-w-3xl">
+    The recommended model is one equity membership, one vote — <strong>but only $50k+ tiers carry board eligibility</strong>. The board proposes; members ratify. Proxy voting is supported. Toggle between models to see the trade-offs.
+  </p>
+
+  <div class="flex flex-wrap gap-2 mb-6 no-print">
+    <button class="toggle-btn active" data-gov="one-vote" onclick="setGov('one-vote', this)">1 Equity = 1 Vote</button>
+    <button class="toggle-btn" data-gov="weighted" onclick="setGov('weighted', this)">Weighted by $</button>
+    <button class="toggle-btn" data-gov="dual-class" onclick="setGov('dual-class', this)">Dual-class (founder control)</button>
+  </div>
+
+  <div id="gov-one-vote" class="gov-panel">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card p-6">
+        <span class="chip chip-green mb-3">Recommended</span>
+        <h3 class="text-2xl font-bold serif mb-3">One equity membership, one vote</h3>
+        <p class="mb-3">All equity members vote equally — Patron, Founder, Charter, Legacy, and Junior. Patron and Founder get amenity privileges, founder recognition, and refund priority, <em>not</em> extra votes.</p>
+        <p class="mb-3 text-sm"><strong>Board eligibility is restricted to $50k+ tiers</strong> (Charter, Founder, Patron). Legacy ($25k) and Junior ($12k) members vote on everything but cannot serve on the board. This keeps board service connected to meaningful financial commitment without creating weighted votes.</p>
+        <p class="text-sm text-slate">Reserved seat structure: 1 Patron, 2 Founder, 3 Charter, 1 at-large (any equity tier). Total 7 directors.</p>
+      </div>
+      <div class="card p-6">
+        <h4 class="font-bold serif mb-3">Board vs. member-vote authority</h4>
+        <p class="text-sm mb-3">Best-practice split: <strong>the board proposes and operates; members ratify the consequential things.</strong> The board cannot bind the membership unilaterally on any of the items at right.</p>
+        <p class="font-semibold text-sm mb-1">Board decides directly (no member vote)</p>
+        <ul class="text-sm space-y-1 mb-3">
+          <li>• Day-to-day operations, hiring, vendors</li>
+          <li>• Annual budget (within bands set by membership)</li>
+          <li>• Routine capex up to $250k</li>
+          <li>• Member admissions and discipline</li>
+          <li>• GM compensation</li>
+        </ul>
+        <p class="font-semibold text-sm mb-1">Members ratify (one equity = one vote)</p>
+        <ul class="text-sm space-y-1">
+          <li>• Election of directors (annual)</li>
+          <li>• Amendment of bylaws or articles</li>
+          <li>• Sale of substantially all club assets (supermajority)</li>
+          <li>• Merger, conversion, dissolution (supermajority)</li>
+          <li>• Capital assessments over $2,500/member/yr</li>
+          <li>• New debt issuance over $1M</li>
+          <li>• Annual dues schedule outside the pre-agreed escalator band</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-6">
+      <div class="card p-6">
+        <span class="chip chip-gold mb-3">New rule</span>
+        <h4 class="font-bold serif text-lg mb-3">Proxy voting</h4>
+        <p class="text-sm mb-3">Any equity member may designate another equity member as their proxy in writing for any vote. Proxies are single-vote (no proxy can carry more than 5 other members' votes, to prevent vote-pooling).</p>
+        <ul class="text-sm space-y-1">
+          <li>• Written, signed (electronic OK), member-name specific</li>
+          <li>• Valid for the named vote only — no standing proxies</li>
+          <li>• Filed with the club secretary 24 hours before vote</li>
+          <li>• Revocable any time before vote is called</li>
+        </ul>
+        <p class="text-xs text-slate italic mt-3">Practical effect: snowbirds, traveling executives, and members who can't attend in person still count toward the 60% threshold. This materially helps quorum.</p>
+      </div>
+
+      <div class="card p-6">
+        <span class="chip chip-gold mb-3">New rule</span>
+        <h4 class="font-bold serif text-lg mb-3">24-month new-member voting waiting period</h4>
+        <p class="text-sm mb-3">New members joining the club after close — i.e. members who buy in as $12k Junior Equity or $25k Legacy Equity post-acquisition — have full club use rights from day one but <strong>cannot vote on member-vote matters until their 24-month anniversary</strong> of membership.</p>
+        <ul class="text-sm space-y-1">
+          <li>• Protects the existing equity base from vote dilution by short-tenure new members</li>
+          <li>• Preserves long-term incentive alignment — voters have skin in the game over time</li>
+          <li>• Existing members at close are NOT subject to the waiting period; they vote immediately</li>
+          <li>• Members upgrading tiers don't reset their clock</li>
+        </ul>
+        <p class="text-xs text-slate italic mt-3">Common in member-owned clubs to prevent rapid-onboarding factions from changing direction. 24 months is the typical balance point — long enough to discourage gaming, short enough to feel fair.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="gov-weighted" class="gov-panel hidden">
+    <div class="card p-6">
+      <span class="chip chip-red mb-3">Not recommended</span>
+      <h3 class="text-2xl font-bold serif mb-3">Votes weighted by capital contribution</h3>
+      <p class="mb-3">Each dollar of equity contribution = one vote (e.g. $250k Patron = 10x the vote of a $25k Legacy).</p>
+      <div class="grid md:grid-cols-2 gap-6 mt-4">
+        <div>
+          <p class="font-semibold mb-1">Pros</p>
+          <p class="pro-item text-sm">Very attractive to large backers</p>
+          <p class="pro-item text-sm">Accelerates fundraising</p>
+        </div>
+        <div>
+          <p class="font-semibold mb-1">Cons</p>
+          <p class="con-item text-sm">Triggers securities-law scrutiny — this starts to look like an investment, not a club</p>
+          <p class="con-item text-sm">Politically toxic at the 60% member vote</p>
+          <p class="con-item text-sm">Most clubs abandon this within 5 years under member pressure</p>
+          <p class="con-item text-sm">Tax treatment of member-owned exempt clubs gets complicated</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="gov-dual-class" class="gov-panel hidden">
+    <div class="card p-6">
+      <span class="chip chip-yellow mb-3">Workable but complex</span>
+      <h3 class="text-2xl font-bold serif mb-3">Dual-class: Founder Control Class vs. Regular Equity</h3>
+      <p class="mb-3">Patron + Founder equity forms a "Class A" that controls initial board composition for a set period (e.g. 5 years), after which governance converts to one-member-one-vote across all equity.</p>
+      <div class="grid md:grid-cols-2 gap-6 mt-4">
+        <div>
+          <p class="font-semibold mb-1">Pros</p>
+          <p class="pro-item text-sm">Gives whales what they want (control through turnaround)</p>
+          <p class="pro-item text-sm">Sunset clause makes it politically sellable</p>
+          <p class="pro-item text-sm">Ensures experienced operators steer the rebuild</p>
+        </div>
+        <div>
+          <p class="font-semibold mb-1">Cons</p>
+          <p class="con-item text-sm">Harder to pass 60% — members don't like founder control, even with sunset</p>
+          <p class="con-item text-sm">Risk of founders extending sunset via bylaw amendment</p>
+          <p class="con-item text-sm">Requires very careful drafting</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ====================================================== 7. REFUND MECHANICS ====================================================== -->
+<section id="refund" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">7</span>
+    <h2 class="text-4xl font-bold serif">Refund &amp; reissuance mechanics</h2>
+  </div>
+  <p class="mb-8 text-lg max-w-3xl">
+    Probably the most operationally consequential design decision. If we overpromise refunds, we crush future cash flow. If we underpromise, fewer people write the founder check.
+  </p>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm card">
+      <thead class="bg-ink text-white sans">
+        <tr>
+          <th class="text-left p-3">Tier</th>
+          <th class="text-left p-3">Price</th>
+          <th class="text-left p-3">Vote?</th>
+          <th class="text-left p-3">Board eligible?</th>
+          <th class="text-left p-3">Refund on reissuance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b">
+          <td class="p-3 font-bold serif">Patron Founder</td>
+          <td class="p-3">$250,000</td>
+          <td class="p-3">✓ Yes (1 vote)</td>
+          <td class="p-3">✓ Yes</td>
+          <td class="p-3 text-green-800">80% of then-current price · top priority</td>
+        </tr>
+        <tr class="border-b">
+          <td class="p-3 font-bold serif">Founder Equity</td>
+          <td class="p-3">$100,000</td>
+          <td class="p-3">✓ Yes (1 vote)</td>
+          <td class="p-3">✓ Yes</td>
+          <td class="p-3 text-green-800">80% of then-current price · second priority</td>
+        </tr>
+        <tr class="border-b bg-sand">
+          <td class="p-3 font-bold serif">Charter Equity</td>
+          <td class="p-3">$50,000</td>
+          <td class="p-3">✓ Yes (1 vote)</td>
+          <td class="p-3">✓ Yes</td>
+          <td class="p-3 text-green-800">70% of then-current price · standard queue</td>
+        </tr>
+        <tr class="border-b">
+          <td class="p-3 font-bold serif">Legacy Equity</td>
+          <td class="p-3">$25,000</td>
+          <td class="p-3">✓ Yes (1 vote)</td>
+          <td class="p-3 text-red-800">✕ No</td>
+          <td class="p-3 text-yellow-800">50% of then-current price · lowest tier with refund</td>
+        </tr>
+        <tr class="border-b bg-yellow-50">
+          <td class="p-3 font-bold serif">Junior Equity <span class="chip chip-gold ml-1">New</span></td>
+          <td class="p-3">$12,000</td>
+          <td class="p-3">✓ Yes (1 vote)</td>
+          <td class="p-3 text-red-800">✕ No</td>
+          <td class="p-3 text-red-800">✕ Non-refundable</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-6 grid md:grid-cols-2 gap-4">
+    <div class="card p-5 bg-ink text-white">
+      <h4 class="font-bold serif text-xl mb-2">Refund stack — at a glance</h4>
+      <ul class="space-y-1 text-sm">
+        <li>▸ <strong>$250k Patron / $100k Founder:</strong> 80% on reissuance</li>
+        <li>▸ <strong>$50k Charter:</strong> 70% on reissuance</li>
+        <li>▸ <strong>$25k Legacy:</strong> 50% on reissuance — lowest refund tier</li>
+        <li>▸ <strong>$12k Junior:</strong> non-refundable</li>
+        <li>▸ Refund based on <em>then-current</em> tier price (no speculative upside)</li>
+        <li>▸ Refund paid within <strong>12 months</strong> of reissuance, not upon resignation</li>
+        <li>▸ Hard cap: ≤10% of equity memberships cycle out per year</li>
+      </ul>
+    </div>
+    <div class="card p-5">
+      <h4 class="font-bold serif text-xl mb-2">Path-upward rule</h4>
+      <p class="text-sm mb-3">Any equity member can move up tiers when slots are available. Move up by paying the difference between current tier and target tier price. Tier upgrades:</p>
+      <ul class="space-y-1 text-sm">
+        <li>• Inherit refund priority of the new (higher) tier</li>
+        <li>• Begin earning board eligibility immediately on reaching $50k+</li>
+        <li>• Do NOT reset the 24-month voting waiting period (it doesn't apply to upgrades — only to brand-new joins)</li>
+        <li>• Subject to current cap availability</li>
+      </ul>
+      <p class="text-xs text-slate italic mt-3">Junior Equity → Legacy → Charter → Founder → Patron. Most members will start where they can afford and grow into higher tiers.</p>
+    </div>
+  </div>
+
+  <div class="mt-6 card p-5">
+    <h4 class="font-bold serif text-lg mb-3">Reissuance mechanics — recommended</h4>
+    <ul class="space-y-1 text-sm">
+      <li>▸ Members resign → club places membership in queue → reissues to next eligible buyer → pays refund within 12 months of reissuance</li>
+      <li>▸ <strong>2-for-1 reissuance rule:</strong> until bank debt is fully retired, for every 1 resigned membership reissued, the club may sell 1 additional new membership <em>for club account</em>. This funds debt paydown without raising assessments.</li>
+      <li>▸ Junior tier ($12k) does NOT enter the queue — those seats are simply absorbed by the club and reissued to new joiners.</li>
+      <li>▸ All resignations require 90-day written notice. Refund accrual begins on the reissuance date, not the resignation date.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================================================== 8. 60% VOTE STRATEGY ====================================================== -->
+<section id="vote" class="bg-ink text-white">
+<div class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">8</span>
+    <h2 class="text-4xl font-bold serif">Winning the 60% vote</h2>
+  </div>
+  <p class="mb-8 text-lg max-w-3xl text-gray-300">
+    The deal doesn't pass because the structure is elegant. It passes because enough members personally feel the <em>downside of Evergreen</em> and the <em>upside of ownership</em>, and because nobody thinks they're being forced into something.
+  </p>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card p-6 text-ink">
+      <h3 class="font-bold serif text-xl mb-3">Three questions every member will ask</h3>
+      <ol class="space-y-3 text-sm">
+        <li><strong>1. "Do I have to pay anything?"</strong><br/><span class="text-slate">Answer: No. Your existing membership is automatically grandfathered into a non-equity class at no cost. Equity is an option — you can also buy in to the entry-level $10k tier any time over the next 10 years, with financing available.</span></li>
+        <li><strong>2. "Can I move up if I start small?"</strong><br/><span class="text-slate">Answer: Yes. Every tier has a path upward. Buy in at $12k or $25k, then upgrade to $50k Charter, $100k Founder, or $250k Patron when slots are available — you simply pay the difference between tiers. Board eligibility unlocks at $50k.</span></li>
+        <li><strong>3. "What happens if this doesn't work?"</strong><br/><span class="text-slate">Answer: Worst case, the club is sold to another operator. In that case, equity holders absorb losses first, not non-equity members. That's what equity means — and it's why grandfathered current members are protected.</span></li>
+      </ol>
+    </div>
+
+    <div class="card p-6 text-ink">
+      <h3 class="font-bold serif text-xl mb-3">Campaign architecture — 45-day expedited path</h3>
+      <p class="text-xs text-slate italic mb-3">Notice triggered Apr 15. PA deadline May 30 (Day 45). Close deadline Jul 14 (Day 90). Senior debt assumed secured.</p>
+      <ol class="space-y-2 text-sm list-decimal list-inside">
+        <li><strong>Days 1–10 (Apr 15–24, complete):</strong> Notice received. Lee Gladden chairing member evaluation committee. Reunion Members Group formed. Initial outreach to Ernie Coward.</li>
+        <li><strong>Days 10–17 (Apr 24–May 1):</strong> Counsel engaged (club/tax/securities). Formal written expression of interest filed. Anchor capital pledges begin — target 50% of equity by Day 17.</li>
+        <li><strong>Days 17–30 (May 1–14):</strong> Term sheet exchanged with seller. Member tier subscriptions open. Member town halls (3 small-group sessions). 60–80% of equity soft-circled.</li>
+        <li><strong>Days 30–45 (May 14–30):</strong> Purchase agreement negotiated and executed (with 60% member ratification as a condition). Equity fully subscribed or under firm pledge.</li>
+        <li><strong>Days 45–75 (May 30–Jun 29):</strong> Member ratification vote. 30-day notice. Whip count Days -21, -14, -7. Proxy voting open.</li>
+        <li><strong>Days 75–90 (Jun 29–Jul 14):</strong> Close. Equity funded. Debt drawn. GM/operator continuity. First 90-day "no surprises" operating window begins.</li>
+      </ol>
+      <p class="text-xs text-slate italic mt-3">If anchor capital is not 50% soft-circled by Day 17, the steering committee should re-assess feasibility before continuing.</p>
+    </div>
+  </div>
+
+  <div class="card p-6 mt-6 text-ink">
+    <h3 class="font-bold serif text-xl mb-4">Segment-specific messages</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="sans bg-sand">
+          <tr>
+            <th class="text-left p-2">Segment</th>
+            <th class="text-left p-2">What they need to hear</th>
+            <th class="text-left p-2">Ask</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b"><td class="p-2 font-semibold">Full Golf</td><td class="p-2">"You built this club. Keep deciding how it runs."</td><td class="p-2">Vote YES. Consider $25–100k equity.</td></tr>
+          <tr class="border-b"><td class="p-2 font-semibold">Junior Exec</td><td class="p-2">"Long-term, this is your club. Own a piece when you can."</td><td class="p-2">Vote YES. $25k Legacy slot held open for you.</td></tr>
+          <tr class="border-b"><td class="p-2 font-semibold">Corporate</td><td class="p-2">"Nothing changes for your company's account. Individual equity is optional."</td><td class="p-2">Company votes YES. Individuals free to buy equity personally.</td></tr>
+          <tr class="border-b"><td class="p-2 font-semibold">Senior (55–64)</td><td class="p-2">"Dues are capped. No forced assessments. Refund guarantees are real."</td><td class="p-2">Vote YES. Equity is optional.</td></tr>
+          <tr class="border-b"><td class="p-2 font-semibold">Super Senior (65+)</td><td class="p-2">"You already have Super Senior status. It is protected. This changes nothing for you."</td><td class="p-2">Vote YES. Stay in Super Senior tier.</td></tr>
+          <tr><td class="p-2 font-semibold">Junior (&lt;35)</td><td class="p-2">"This is your generation's shot to own the club long-term."</td><td class="p-2">Vote YES. Optional upgrade path exists.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ====================================================== 9. RISKS ====================================================== -->
+<section id="risks" class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">9</span>
+    <h2 class="text-4xl font-bold serif">Honest risks</h2>
+  </div>
+  <p class="mb-8 text-lg max-w-3xl">
+    What could kill this. We owe the steering committee and the member base a clear-eyed view.
+  </p>
+
+  <div class="grid md:grid-cols-2 gap-4">
+
+    <details class="card p-5" open>
+      <summary class="font-bold serif text-lg">Insufficient anchor capital</summary>
+      <p class="text-sm mt-3">If fewer than 5–10 families write $100k+ checks, the whole capital stack falls apart and we end up with more debt than the club can service against $1M of ongoing losses. <strong>Mitigation:</strong> confirm soft commitments covering 50–70% of equity target before signing LOI.</p>
+    </details>
+
+    <details class="card p-5">
+      <summary class="font-bold serif text-lg">Evergreen outbids us meaningfully</summary>
+      <p class="text-sm mt-3">If Evergreen goes to $13–15M, member-financed deal economics get very hard. <strong>Mitigation:</strong> lock in a right of first refusal or matching right with ownership before they sign with Evergreen. Also accept that we may not be the highest bidder; current ownership may accept a lower member bid if the relationship is good and the transition is cleaner.</p>
+    </details>
+
+    <details class="card p-5">
+      <summary class="font-bold serif text-lg">Turnaround takes longer than $2M working capital covers</summary>
+      <p class="text-sm mt-3">$1M/year burn × 2 years = $2M. If operations don't improve in 24 months, we're back at the members for a capital call. <strong>Mitigation:</strong> hire experienced GM before close (not after), build conservative 36-month operating plan with explicit triggers for corrective action, build capex reserve separately so it isn't eaten by operating losses.</p>
+    </details>
+
+    <details class="card p-5">
+      <summary class="font-bold serif text-lg">Securities law exposure</summary>
+      <p class="text-sm mt-3">Selling "equity memberships" can, depending on structure, look like issuing securities — especially if we promise anything approximating an investment return. <strong>Mitigation:</strong> club counsel + securities counsel review structure; we lean into "use rights + governance rights" language and avoid any language suggesting investment return. Traditional member-owned club structures have well-understood safe harbors.</p>
+    </details>
+
+    <details class="card p-5">
+      <summary class="font-bold serif text-lg">Vote fails between 40–59% YES</summary>
+      <p class="text-sm mt-3">The worst case: we campaign, alienate seller, and don't get 60%. <strong>Mitigation:</strong> internal whip count <em>before</em> calling the vote. If we can't count 60% of soft-yeses plus 10% margin 30 days out, we pull the vote, re-structure, or withdraw.</p>
+    </details>
+
+    <details class="card p-5">
+      <summary class="font-bold serif text-lg">Tax / nonprofit exempt status complications</summary>
+      <p class="text-sm mt-3">Reunion's current tax status matters a lot. A 501(c)(7) exempt social club has strict rules on non-member revenue, and converting entity structure can disrupt exempt status. <strong>Mitigation:</strong> tax counsel from day one. Don't commit to structure until tax treatment is confirmed.</p>
+    </details>
+
+    <details class="card p-5">
+      <summary class="font-bold serif text-lg">Sports membership voice not captured</summary>
+      <p class="text-sm mt-3">This deck focuses on the 544 golf primaries because that's the data we have. Sports-only members are estimated at 50–100+ based on the user's recollection and also vote. Under-engaging them risks losing their block. <strong>Mitigation:</strong> get the sports roster early, segment them, include a Sports/Social equity conversion path.</p>
+    </details>
+
+    <details class="card p-5">
+      <summary class="font-bold serif text-lg">Post-close governance drift</summary>
+      <p class="text-sm mt-3">Member-owned clubs often start great, then drift into board factionalism, slow decisions, and deferred capex because committees can't agree on assessments. <strong>Mitigation:</strong> clear bylaws on dues escalation authority (board-set within defined bands, member-vote above), well-defined CEO/GM authority, term limits on directors, no more than 9 board seats.</p>
+    </details>
+
+  </div>
+</section>
+
+<!-- ====================================================== 10. NEXT STEPS ====================================================== -->
+<section id="nextsteps" class="bg-ink text-white">
+<div class="max-w-6xl mx-auto px-6 py-16">
+  <div class="section-divider mb-4"></div>
+  <div class="flex items-center gap-4 mb-6">
+    <span class="num-badge">10</span>
+    <h2 class="text-4xl font-bold serif">Proposed next steps</h2>
+  </div>
+
+  <p class="mb-6 text-gray-300">All milestones are days from the April 15 notice. Today is roughly Day 10. <strong>Subscription gathering is the critical path.</strong></p>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="card p-5 text-ink">
+      <div class="chip chip-ink mb-2">Days 10–17 · Apr 24–May 1</div>
+      <h4 class="font-bold serif mb-2">Lock the structure, file expression of interest</h4>
+      <ul class="text-sm space-y-1">
+        <li>• Reunion Members Group steering committee finalized (Lee Gladden chair)</li>
+        <li>• Counsel retained (club + tax + securities)</li>
+        <li>• Formal written expression of interest filed with Ernie Coward</li>
+        <li>• Five-tier structure approved by counsel</li>
+        <li>• Subscription documents drafted and ready</li>
+      </ul>
+    </div>
+    <div class="card p-5 text-ink">
+      <div class="chip chip-ink mb-2">Days 17–30 · May 1–14</div>
+      <h4 class="font-bold serif mb-2">Anchor capital + member town halls</h4>
+      <ul class="text-sm space-y-1">
+        <li>• Patron + Founder pledges papered (target $3M+ from this tier)</li>
+        <li>• Three small-group town halls (morning / evening / weekend)</li>
+        <li>• Charter, Legacy, Junior subscription packets distributed</li>
+        <li>• Term sheet exchanged with seller</li>
+        <li>• Whip count: 50%+ of target equity soft-committed</li>
+      </ul>
+    </div>
+    <div class="card p-5 text-ink">
+      <div class="chip chip-ink mb-2">Days 30–45 · May 14–30</div>
+      <h4 class="font-bold serif mb-2">Execute purchase agreement</h4>
+      <ul class="text-sm space-y-1">
+        <li>• PA negotiated and executed by Day 45 — hard deadline per bylaws</li>
+        <li>• PA includes 60% member ratification as a condition</li>
+        <li>• Equity firm-circled or under signed subscription agreements</li>
+        <li>• Whip count: 60%+ of target equity firm; member YES count tracked</li>
+      </ul>
+    </div>
+    <div class="card p-5 text-ink">
+      <div class="chip chip-ink mb-2">Days 45–75 · May 30–Jun 29</div>
+      <h4 class="font-bold serif mb-2">Member ratification vote</h4>
+      <ul class="text-sm space-y-1">
+        <li>• Vote called with 30-day notice</li>
+        <li>• Proxy voting open immediately</li>
+        <li>• Whip count Days -21, -14, -7</li>
+        <li>• Go / no-go decision Day -14 if 60% not soft-yes</li>
+      </ul>
+    </div>
+    <div class="card p-5 text-ink">
+      <div class="chip chip-ink mb-2">Days 75–90 · Jun 29–Jul 14</div>
+      <h4 class="font-bold serif mb-2">Close</h4>
+      <ul class="text-sm space-y-1">
+        <li>• Funds called from equity subscribers</li>
+        <li>• Debt drawn from senior lender</li>
+        <li>• Title closes by Day 90 (Jul 14) — hard deadline per bylaws</li>
+        <li>• GM/operator continuity confirmed</li>
+      </ul>
+    </div>
+    <div class="card p-5 text-ink">
+      <div class="chip chip-ink mb-2">Days 90+ · Post-close</div>
+      <h4 class="font-bold serif mb-2">Operate</h4>
+      <ul class="text-sm space-y-1">
+        <li>• First 90-day "no surprises" operating window</li>
+        <li>• 24-month new-member voting clock starts for any post-close joiners</li>
+        <li>• Existing members begin 10-year window for $10k buy-in</li>
+        <li>• Tier upgrade path opens once initial caps are filled</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card p-6 mt-8 text-ink bg-sand">
+    <h4 class="font-bold serif text-lg mb-2">Open questions for the steering group</h4>
+    <ol class="space-y-1 text-sm list-decimal list-inside">
+      <li>Confirm via Membership Plan: exact definition of "dues-paying Club Members" — does it include sports-only? Corporate designees? Honorary?</li>
+      <li>Who are the 10–15 potential Patron ($250k) and Founder ($100k) backers? Are pledges in writing yet?</li>
+      <li>Confirm Lee Gladden's Reunion Members Group authority extends to negotiating directly with Ernie Coward, or whether a separate purchaser entity is required.</li>
+      <li>Who is the designated post-close GM / operator? Continuity is critical for member confidence at the 60% vote.</li>
+      <li>What's the precise list of "Club Facilities" included in the sale per the PA — clubhouse, course, range, pool, tennis, fitness, what land?</li>
+      <li>Securities counsel: is the equity offering a private placement (Reg D)? Do we need accredited-investor verification for $50k+ tiers?</li>
+      <li>Tax counsel: does conversion from current entity to member-owned 501(c)(7) (or LLC) require asset transfer that triggers tax?</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+<!-- ====================================================== FOOTER ====================================================== -->
+<footer class="border-t border-gold">
+  <div class="max-w-6xl mx-auto px-6 py-8 text-xs text-slate">
+    <p><strong>Confidential working draft.</strong> Prepared for the Reunion Members Group steering committee. All numbers are planning estimates, not binding. Structure subject to review by club counsel, tax counsel, and securities counsel. This document is not an offer to sell or a solicitation to buy any security or membership interest. Financial assumptions: $10M–$25M purchase range with $20M default expectation, ~$1M annual cash loss, 587 primary voting members from the 4.24.26 reunionms.com directory scrape (cross-referenced with the 3.1.26 golf roster of 544 primary members). Timeline anchored to the April 15, 2026 Important Notice to Members per the Reunion Membership Plan: 45-day PA deadline (May 30), 90-day close deadline (July 14), 60% dues-paying member ratification required.</p>
+    <p class="mt-3">Drafted April 2026 · v0.3 ($10M–$25M range · $20M default · five-tier structure · 45-day expedited path)</p>
+  </div>
+</footer>
+
+<!-- ====================================================== JAVASCRIPT ====================================================== -->
+<script>
+// ==========================================
+// CAPITAL STACK CALCULATOR
+// ==========================================
+function fmtM(x) { return '$' + x.toFixed(1) + 'M'; }
+function fmtK(x) { return '$' + Math.round(x).toLocaleString(); }
+
+const capInputs = {
+  purchase: document.getElementById('cap-purchase'),
+  wc: document.getElementById('cap-wc'),
+  capex: document.getElementById('cap-capex'),
+  debt: document.getElementById('cap-debt'),
+  sellernote: document.getElementById('cap-sellernote'),
+  benefactor: document.getElementById('cap-benefactor'),
+};
+
+function updateCapital() {
+  const purchase = parseFloat(capInputs.purchase.value);
+  const wc = parseFloat(capInputs.wc.value);
+  const capex = parseFloat(capInputs.capex.value);
+  const debt = parseFloat(capInputs.debt.value);
+  const sellernote = parseFloat(capInputs.sellernote.value);
+  const benefactor = parseFloat(capInputs.benefactor.value);
+
+  document.getElementById('cap-purchase-val').textContent = fmtM(purchase);
+  document.getElementById('cap-wc-val').textContent = fmtM(wc);
+  document.getElementById('cap-capex-val').textContent = fmtM(capex);
+  document.getElementById('cap-debt-val').textContent = fmtM(debt);
+  document.getElementById('cap-sellernote-val').textContent = fmtM(sellernote);
+  document.getElementById('cap-benefactor-val').textContent = fmtM(benefactor);
+
+  const totalNeed = purchase + wc + capex;
+  const totalNonEquity = debt + sellernote + benefactor;
+  const equityNeeded = Math.max(0, totalNeed - totalNonEquity);
+
+  document.getElementById('cap-total-need').textContent = fmtM(totalNeed);
+  document.getElementById('cap-equity-needed').textContent = fmtM(equityNeeded);
+
+  const total = Math.max(totalNeed, 0.01);
+  document.getElementById('cap-bar-equity').style.width = (equityNeeded/total*100) + '%';
+  document.getElementById('cap-bar-debt').style.width = (debt/total*100) + '%';
+  document.getElementById('cap-bar-sellernote').style.width = (sellernote/total*100) + '%';
+  document.getElementById('cap-bar-benefactor').style.width = (benefactor/total*100) + '%';
+  document.getElementById('cap-bar-equity').textContent = equityNeeded > 0.5 ? fmtM(equityNeeded) : '';
+  document.getElementById('cap-bar-debt').textContent = debt > 0.5 ? fmtM(debt) : '';
+  document.getElementById('cap-bar-sellernote').textContent = sellernote > 0.5 ? fmtM(sellernote) : '';
+  document.getElementById('cap-bar-benefactor').textContent = benefactor > 0.5 ? fmtM(benefactor) : '';
+
+  // debt service @ 7.5% / 20 yr amort
+  const monthlyRate = 0.075/12;
+  const n = 240;
+  let monthlyPmt = 0;
+  if (debt > 0) {
+    monthlyPmt = (debt*1000000 * monthlyRate) / (1 - Math.pow(1+monthlyRate, -n));
+  }
+  const annualDS = monthlyPmt * 12;
+  document.getElementById('cap-debt-service').textContent = fmtK(annualDS);
+
+  const wcRunway = wc / 1.0;
+  document.getElementById('cap-wc-runway').textContent = wcRunway.toFixed(1);
+
+  // equity per voter assuming ~400 equity memberships (avg with broader $12k tier participation)
+  const perVoter = equityNeeded * 1000000 / 400;
+  document.getElementById('cap-per-voter').textContent = fmtK(perVoter);
+
+  // also update tier builder's goal
+  tierGoal = equityNeeded * 1000000;
+  updateTiers();
+}
+Object.values(capInputs).forEach(el => el.addEventListener('input', updateCapital));
+
+// ==========================================
+// TIER BUILDER
+// ==========================================
+const tiers = [
+  { key: 'patron', name: 'Patron Founder', price: 250000, cap: 10, color: '#b38e3f', rights: 'Vote · Board-eligible · Refund priority 1 (80%) · Preferred amenities · Founder recognition' },
+  { key: 'founder', name: 'Founder Equity', price: 100000, cap: 30, color: '#9c7a37', rights: 'Vote · Board-eligible · Refund priority 2 (80%) · Founder recognition' },
+  { key: 'charter', name: 'Charter Equity', price: 50000, cap: 60, color: '#7a5c22', rights: 'Vote · Board-eligible · Standard refund/reissue (70%)' },
+  { key: 'legacy', name: 'Legacy Equity', price: 25000, cap: 100, color: '#5a4017', rights: 'Vote · NOT board-eligible · Lowest refund tier (50%)' },
+  { key: 'junior', name: 'Junior Equity (NEW)', price: 12000, cap: 200, color: '#3a2810', rights: 'Vote · NOT board-eligible · NON-REFUNDABLE · Path upward to higher tiers' },
+];
+let tierGoal = 12500000;
+
+const presets = {
+  conservative: [
+    { price: 0, cap: 0 },
+    { price: 100000, cap: 20 },
+    { price: 50000, cap: 60 },
+    { price: 25000, cap: 100 },
+    { price: 12000, cap: 250 },
+  ],
+  balanced: [
+    { price: 250000, cap: 10 },
+    { price: 100000, cap: 30 },
+    { price: 50000, cap: 60 },
+    { price: 25000, cap: 100 },
+    { price: 12000, cap: 200 },
+  ],
+  aggressive: [
+    { price: 250000, cap: 15 },
+    { price: 100000, cap: 40 },
+    { price: 50000, cap: 100 },
+    { price: 25000, cap: 100 },
+    { price: 12000, cap: 200 },
+  ],
+  'no-patron': [
+    { price: 0, cap: 0 },
+    { price: 100000, cap: 50 },
+    { price: 50000, cap: 100 },
+    { price: 25000, cap: 100 },
+    { price: 12000, cap: 200 },
+  ],
+  reset: [
+    { price: 250000, cap: 10 },
+    { price: 100000, cap: 30 },
+    { price: 50000, cap: 60 },
+    { price: 25000, cap: 100 },
+    { price: 12000, cap: 200 },
+  ],
+};
+
+function renderTierTable() {
+  const tbody = document.getElementById('tier-table');
+  tbody.innerHTML = '';
+  tiers.forEach((t, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b align-top';
+    tr.innerHTML = `
+      <td class="py-3 pr-3">
+        <div class="font-bold serif text-base" style="color: ${t.color}">${t.name}</div>
+        <div class="text-xs text-slate italic mt-1">${t.rights}</div>
+      </td>
+      <td class="py-3 pr-3 whitespace-nowrap">
+        <input type="number" class="w-24 border rounded px-2 py-1 text-sm tier-price" data-i="${i}" value="${t.price}" step="5000" min="0" />
+      </td>
+      <td class="py-3 pr-3 whitespace-nowrap">
+        <input type="number" class="w-20 border rounded px-2 py-1 text-sm tier-cap" data-i="${i}" value="${t.cap}" step="1" min="0" max="300" />
+      </td>
+      <td class="py-3 pr-3 tier-pct text-sm" id="tier-pct-${i}">—</td>
+      <td class="py-3 pr-3 text-right font-semibold tier-total" id="tier-total-${i}">$0</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.querySelectorAll('.tier-price, .tier-cap').forEach(inp => {
+    inp.addEventListener('input', (e) => {
+      const i = parseInt(e.target.dataset.i);
+      const val = parseFloat(e.target.value) || 0;
+      if (e.target.classList.contains('tier-price')) tiers[i].price = val;
+      else tiers[i].cap = val;
+      updateTiers();
+    });
+  });
+}
+
+function updateTiers() {
+  let grandTotal = 0;
+  let totalSlots = 0;
+  tiers.forEach((t, i) => {
+    const total = t.price * t.cap;
+    grandTotal += total;
+    totalSlots += t.cap;
+    const pct = (t.cap / 587 * 100).toFixed(1);
+    document.getElementById('tier-total-' + i).textContent = '$' + total.toLocaleString();
+    document.getElementById('tier-pct-' + i).textContent = pct + '%';
+  });
+
+  document.getElementById('tier-grand-total').textContent = '$' + grandTotal.toLocaleString();
+  document.getElementById('tier-vs-goal').textContent = '$' + (grandTotal/1000000).toFixed(2) + 'M raised / $' + (tierGoal/1000000).toFixed(2) + 'M needed';
+  const coverage = Math.min(100, grandTotal / tierGoal * 100);
+  document.getElementById('tier-progress').style.width = coverage + '%';
+  document.getElementById('tier-progress-label').textContent = coverage.toFixed(1) + '% of equity goal covered';
+
+  const chip = document.getElementById('tier-vs-goal-chip');
+  if (coverage >= 100) { chip.className = 'chip chip-green'; chip.textContent = 'Fully covered'; }
+  else if (coverage >= 75) { chip.className = 'chip chip-yellow'; chip.textContent = 'Close'; }
+  else { chip.className = 'chip chip-red'; chip.textContent = 'Shortfall'; }
+
+  document.getElementById('tier-participation').textContent = totalSlots + ' equity slots';
+  document.getElementById('tier-participation-note').textContent = '— ' + (totalSlots/587*100).toFixed(1) + '% of 587 primary voting members';
+}
+
+function applyPreset(name) {
+  const p = presets[name];
+  tiers.forEach((t, i) => {
+    t.price = p[i].price;
+    t.cap = p[i].cap;
+  });
+  renderTierTable();
+  updateTiers();
+}
+
+// ==========================================
+// MEMBER DONUT
+// ==========================================
+const donutCtx = document.getElementById('memberDonut').getContext('2d');
+new Chart(donutCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Full Golf (200)', 'Junior Exec (124)', 'Corporate (101)', 'Senior 55-64 (74)', 'Sports/Other (43)', 'Junior <35 (27)', 'Super Senior 65+ (14)', 'Clergy (4)'],
+    datasets: [{
+      data: [200, 124, 101, 74, 43, 27, 14, 4],
+      backgroundColor: ['#0f2a1d', '#1e3a2a', '#b38e3f', '#d4b676', '#7a5c22', '#9c4b2a', '#66493d', '#8a8a8a'],
+      borderColor: '#faf7f0',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { position: 'right', labels: { font: { family: 'Inter, sans-serif', size: 11 }, color: '#334155' } }
+    },
+    cutout: '55%'
+  }
+});
+
+// ==========================================
+// GOVERNANCE TOGGLE
+// ==========================================
+function setGov(key, btn) {
+  document.querySelectorAll('[data-gov]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.gov-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('gov-' + key).classList.remove('hidden');
+}
+
+// INIT
+renderTierTable();
+updateCapital();
+</script>
+
+</body>
+</html>
